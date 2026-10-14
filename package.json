@@ -1,7 +1,6 @@
 {
   "name": "dsh-github-copilot-credits",
   "version": "0.1.0",
-  "private": true,
   "description": "Display GitHub Copilot subscription credits beside DSH context usage.",
   "keywords": [
     "dsh",
