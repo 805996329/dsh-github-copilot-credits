@@ -12,7 +12,7 @@
 
 2. **安装 bundle**，二选一：
 
-   - **界面**：侧边栏 → **Plugins** → Install bundle → 填入下面的来源；
+   - **界面**：侧边栏 → **Plugins** → **Add plugin** → 粘贴下面的地址 → **Install** → **Enable now**；
    - **命令行**：
 
    ```powershell
@@ -20,10 +20,35 @@
    dsh plugin --profile desktop add 'github:805996329/dsh-github-copilot-credits'
    ```
 
-   也可用 git 完整地址 `git+https://github.com/805996329/dsh-github-copilot-credits.git`、
-   打包文件 `https://…/dsh-github-copilot-credits.tgz`，或本地目录路径。
+   也可用 git 完整地址 `git+https://github.com/805996329/dsh-github-copilot-credits.git`，
+   或本地目录 / `.tgz` 的**绝对路径**。
+
+   > **安装源（registry）不需要切换。** 对话框里的「npm 官方源 / 中国大陆镜像源 / 自定义地址」决定的是 **npm 依赖**从哪下载，而本插件运行时依赖为零、peer 依赖由 DSH 运行时提供，所以三个选项选哪个结果都一样。
+   >
+   > 反过来也要清楚：**国内镜像不代理 GitHub 仓库。** 如果提示无法访问 GitHub，切到「npm 官方源」也不会变好——两者都是 npm 源，都不是插件来源。
 
 3. **刷新当前 DSH 页面**。装好后用量条目出现在编辑器底部右侧。
+
+### 安装时提示「GitHub 连接超时」
+
+安装前 DSH 会对 GitHub 地址做一次连通性预检（`git ls-remote`），**默认只给 5 秒**；超时就整体中止，pnpm 不会开始下载。提示是「超时」而不是「网络失败」，通常说明是慢，而不是完全不通。
+
+- **放宽这个超时**（可配置，最小 1000 ms），写进 profile 的 `cordis.patch.yml`：
+
+  ```yaml
+  - id: plugin-manager
+    name: "@deepseek-ai/dsh-plugin-manager"
+    config:
+      githubConnectionTimeoutMs: 30000
+  ```
+
+- **或完全绕开 GitHub**：把仓库打包成 `.tgz` 发给对方，用**绝对路径**安装。`.tgz` 走的是另一条分支，不做那次预检：
+
+  ```powershell
+  dsh plugin --profile desktop add 'D:\Downloads\dsh-github-copilot-credits-0.1.0.tgz'
+  ```
+
+  本地路径必须是绝对路径（`D:\…`、`C:\…`），不能用 `~` 或相对路径；这种装法会把**该文件的绝对路径**记进 profile，装完不要删除或移动那个 `.tgz`。
 
 > **本地开发时**才用目录路径安装，例如
 > `dsh plugin --profile desktop add 'D:\path\to\dsh-github-copilot-credits'`。
