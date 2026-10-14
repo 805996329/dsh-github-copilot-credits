@@ -1,0 +1,5 @@
+# Installs the Host data route and the Client footer cell together.
+- insert:
+    - id: github-copilot-credits
+      name: dsh-github-copilot-credits
+      config: {}
