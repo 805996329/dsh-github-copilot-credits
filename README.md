@@ -17,6 +17,10 @@
 
    若你已用 GitHub Copilot 的 IDE 插件或 CLI 登录过，也可以直接复用那份授权；手动方式见 [signin 仓库的说明](https://github.com/805996329/dsh-github-copilot-signin#readme)。
 
+   > ⚠️ **登录之前必须先配好供应商路由**：**设置 → Models → Add model provider → Third-party model provider → 选 `github-copilot` → 保存 → 刷新页面**。
+   > 全新安装的 DSH 里 `llm-pi-ai` 一条路由都没配置，而授权流程是按路由注册的——跳过这步，登录工具会返回 `unavailable`。
+   > 无论用上面的 signin 插件还是复用 IDE 授权，这步都不能省。
+
 2. **安装 bundle**，二选一：
 
    - **界面**：侧边栏 → **Plugins** → **Add plugin** → 粘贴下面的地址 → **Install** → **Enable now**；
