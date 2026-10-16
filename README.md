@@ -6,9 +6,16 @@
 
 三步，无需构建（包内已含 Host 与预构建的 `lib/client.js`）：
 
-1. **先登录 GitHub Copilot**：在同一个 DSH profile 里，通过内建 `llm-pi-ai` 的 `github-copilot` 提供商完成登录，凭据记录键为 `llm-pi-ai/github-copilot`。
-   没有登录的话，本插件会显示“尚未在 DSH 登录 GitHub Copilot”，而不是报错。
-   （本项目另有配套插件 `dsh-github-copilot-signin`，可在会话里直接完成该登录。）
+1. **先登录 GitHub Copilot**：在同一个 DSH profile 里完成登录，凭据记录键为 `llm-pi-ai/github-copilot`。
+   没有登录的话，本插件会显示「尚未在 DSH 登录 GitHub Copilot」，而不是报错。
+
+   推荐用配套插件 [dsh-github-copilot-signin](https://github.com/805996329/dsh-github-copilot-signin)，在会话里说一句「登录 GitHub Copilot」即可完成，无需终端：
+
+   ```powershell
+   dsh plugin --profile desktop add 'github:805996329/dsh-github-copilot-signin'
+   ```
+
+   若你已用 GitHub Copilot 的 IDE 插件或 CLI 登录过，也可以直接复用那份授权；手动方式见 [signin 仓库的说明](https://github.com/805996329/dsh-github-copilot-signin#readme)。
 
 2. **安装 bundle**，二选一：
 
@@ -63,7 +70,20 @@
 - 仅有组织共享额度时，如 GitHub 返回 `unlimited: true`、`entitlement: 0`，个人剩余和个人总额显示**不可用**；如果 GitHub提供 `credits_used`，仍显示已用估计值。
 - 首次读取后每 120 秒自动查询；Host 正常结果缓存 90 秒。弹层“刷新”会主动跳过该缓存并查询最新快照；GitHub 返回限流时遵守它的冷却时间。读取失败不返回任何原始 GitHub 响应。
 
-**精度声明：** 这是 GitHub 尚未公开支持的只读 `copilot_internal/user` 配额快照；整数配额可能舍入。若 GitHub 返回 `credits_used`，详情优先显示这个**已用**数字；否则由「总额−剩余」估算。两者可能因额度调整等原因不同（示例图的 `789 + 28,811 ≠ 30,000`），因此用量条按额度余额变化计算，不应强行把三项改成加总一致。它们均不等于官方精确账单或费用。GitHub 随时可能修改接口；没有可用数据时插件会明确显示不可用，绝不会把缺失配额当成 0。
+**精度声明：** 这是 GitHub 尚未公开支持的只读 `copilot_internal/user` 配额快照；整数配额可能舍入。若 GitHub 返回 `credits_used`，详情优先显示这个**已用**数字；否则由「总额−剩余」估算。两者可能因额度调整等原因不同，因此用量条按额度余额变化计算，不应强行把三项改成加总一致。它们均不等于官方精确账单或费用。GitHub 随时可能修改接口；没有可用数据时插件会明确显示不可用，绝不会把缺失配额当成 0。
+
+### 关于「已用 + 剩余 ≠ 总额度」
+
+这是正常现象，不是 bug。插件里这两个数字来自**不同数据源**：
+
+| 显示项 | 来源 |
+|---|---|
+| `剩余` / `总额度`、进度条 | GitHub 返回的**当前额度余额**（`remaining` / `entitlement`） |
+| 弹层里的「已用」 | GitHub **单独回报**的 `credits_used`（计费口径） |
+
+同一份响应里两者本就不一致。实测一例：`entitlement=30000`、`remaining=27831`、`credits_used=2234` —— `30000 − 27831 = 2169`，而 GitHub 自己报的 `credits_used` 是 `2234`，相差 65；连 GitHub 自己的 `percent_remaining`（92.7）与 `remaining / entitlement`（92.77）也对不齐，说明该接口内部没有单一自洽的账本。
+
+所以请把弹层的「已用」理解为 **GitHub 报告的本期用量**，把进度条理解为 **余额消耗比例**；两者不必相加等于总额度。**想要内部自洽的读数，请以「剩余 / 总额度」为准。**
 
 ## 兼容性
 
